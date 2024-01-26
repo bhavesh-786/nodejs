@@ -29,16 +29,26 @@ app.get("/api/users", (req, res, next) => {
       res.status(404).json({ error: 'No scores found' });
       return;
     }
-    //console.log(rows.length, 1)
-    // Calculate average score
-    //const totalScores = rows.reduce((acc, row) => acc + row.G1, 0);
-    //console.log(totalScores)
-    //const averageScore = totalScores / rows.length;
+
+    length = rows.length;
+    var Male = 0;
+    var Female = 0;
+
+    for (var i = 0; i < length; i++) {
+      if (rows[i].sex == 'F') {
+        Male += 1;
+      } else {
+        Female += 1;
+      }
+    }
 
     res.json({
       "code": 200,
       "message": "success",
       "data": rows,
+      'count': rows.length,
+      'male': Male,
+      'female': Female
       //"g1_avg": averageScore
     })
   });
@@ -76,7 +86,7 @@ app.get('/api/average-score', (req, res) => {
     const averageScore2 = total2 / rows.length;
     const averageScore3 = total3 / rows.length;
 
-    res.json({ averageScore1, averageScore2, averageScore3 });
+    res.json({ "data": { 'G1': averageScore1, 'G2': averageScore2, 'G3': averageScore3 } });
   });
 
   //db.close();
@@ -102,3 +112,65 @@ app.get('/api/performance-by-gender', (req, res) => {
     res.json({ performanceByGender: rows });
   });
 });
+
+// Define a route for analyzing performance by gender
+app.get('/api/graphData', (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  var sql = "SELECT count(*) as count, sex FROM performancedata group by sex"
+
+  // Assuming you have a 'students' table with a 'gender' column
+  db.all(sql, (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+
+    if (rows.length === 0) {
+      res.status(404).json({ error: 'No data found' });
+      return;
+    }
+
+    length = rows.length;
+    var G1 = [];
+    var G2 = [];
+    var G3 = [];
+
+    for (var i = 0; i < length; i++) {
+      G1.push(rows[i].count);
+      G2.push(rows[i].sex);
+      //G3.push(rows[i].G3);
+    }
+
+    res.json({ "code": 200, 'count': G1, 'gender': G2, 'G3': G3 });
+  });
+});
+
+// Define a route for analyzing performance by gender
+app.get('/api/graphDataTwo', (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  var sql = "SELECT count(*) as count, Fjob FROM performancedata group by Fjob"
+
+  // Assuming you have a 'students' table with a 'gender' column
+  db.all(sql, (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+
+    if (rows.length === 0) {
+      res.status(404).json({ error: 'No data found' });
+      return;
+    }
+
+    length = rows.length;
+    var G1 = [];
+    var G2 = [];
+
+    for (var i = 0; i < length; i++) {
+      G1.push(rows[i].count);
+      G2.push(rows[i].Fjob);
+    }
+
+    res.json({ "code": 200, 'count': G1, 'job': G2 });
+  });
+})

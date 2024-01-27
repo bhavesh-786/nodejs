@@ -14,6 +14,14 @@ app.listen(HTTP_PORT, () => {
   console.log("Server running on port %PORT%".replace("%PORT%", HTTP_PORT))
 });
 
+
+/**
+ * To Fetch table component data
+ * set total count
+ * set male count
+ * set female count
+ */
+
 app.get("/api/users", (req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   var sql = "select * from performancedata"
@@ -54,7 +62,11 @@ app.get("/api/users", (req, res, next) => {
   });
 });
 
-// Define a route for calculating average scores
+
+/**
+ * Calculate average of G1, G2, G3
+ * 
+ */
 app.get('/api/average-score', (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   var sql = "select G1, G2, G3 from performancedata"
@@ -88,16 +100,15 @@ app.get('/api/average-score', (req, res) => {
 
     res.json({ "data": { 'G1': averageScore1, 'G2': averageScore2, 'G3': averageScore3 } });
   });
-
-  //db.close();
 });
 
-// Define a route for analyzing performance by gender
+/**
+ * Define a route for analyzing performance by gender
+ */
 app.get('/api/performance-by-gender', (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   var sql = "SELECT sex, AVG(studytime) AS averageScore FROM performancedata GROUP BY sex"
 
-  // Assuming you have a 'students' table with a 'gender' column
   db.all(sql, (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
@@ -113,7 +124,9 @@ app.get('/api/performance-by-gender', (req, res) => {
   });
 });
 
-// Define a route for analyzing performance by gender
+/**
+ * Define data for Line chart
+ */
 app.get('/api/graphData', (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   var sql = "SELECT count(*) as count, sex FROM performancedata group by sex"
@@ -145,7 +158,9 @@ app.get('/api/graphData', (req, res) => {
   });
 });
 
-// Define a route for analyzing performance by gender
+/**
+ * Define data for Bar chart
+ */
 app.get('/api/graphDataTwo', (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   var sql = "SELECT count(*) as count, Fjob FROM performancedata group by Fjob"
